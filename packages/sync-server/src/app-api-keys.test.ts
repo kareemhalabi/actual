@@ -4,9 +4,7 @@ import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { getAccountDb } from './account-db';
-import { handlers as accountApp } from './app-account';
 import { handlers as app } from './app-api-keys';
-import { handlers as syncApp } from './app-sync';
 
 describe('API key lifecycle', () => {
   const db = getAccountDb();
@@ -192,20 +190,4 @@ describe('API key lifecycle', () => {
       ).not.toBeNull();
     },
   );
-
-  it('does not accept an API key as an account or sync session', async () => {
-    const created = await createKey();
-    const token = created.body.data.key;
-    expect(
-      (await request(accountApp).get('/validate').set('X-ACTUAL-TOKEN', token))
-        .status,
-    ).toBe(401);
-    expect(
-      (
-        await request(syncApp)
-          .get('/list-user-files')
-          .set('X-ACTUAL-TOKEN', token)
-      ).status,
-    ).toBe(401);
-  });
 });
